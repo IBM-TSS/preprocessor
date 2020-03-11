@@ -6,19 +6,19 @@ class Preprocessor:
     def __init__(self):
         self.data = None
 
-    @staticmethod
-    @NotImplementedError
     def process(self, path):
-        pass
+        self.read(path)
+        self.parse()
+        #Preprocessor.save()
+        #Preprocessor.upload()
 
-    @staticmethod
     @NotImplementedError
     def parse(self):
         pass
 
     @staticmethod
     @NotImplementedError
-    def upload(self):
+    def upload():
         pass
 
     def save(self, path="", **save_options):
