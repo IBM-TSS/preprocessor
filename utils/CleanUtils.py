@@ -11,7 +11,6 @@ class CleanUtils:
         'id': ['ID'],
         'name': ['Nombre'],
         'addres': ['Direccion'],
-        'reference': ['Referencia'],
         'suburb': ['Colonia'],
         'postal_code': ['CP'],
         'city': ['Ciudad'],
@@ -39,6 +38,7 @@ class CleanUtils:
         'service_time': ['Horario_Atencion'],
         'longitude': [],
         'latitude': [],
+        'responsable': ['Atiende'],
     }
 
     @staticmethod
@@ -100,11 +100,12 @@ class CleanUtils:
         :param summary: A summary dictionary
         :returns: Same dictionary with keys standardized
         '''
-        for key in summary:
+        new = {}
+        for key in summary.keys():
             for real_key, keywords in CleanUtils.MASTER_DICT.items():
-                if CleanUtils.clean_string(key, to_alpha=True) in keywords:
-                    summary[real_key] = summary.pop(key)
-        return summary
+                if CleanUtils.clean_string(key, to_alpha=True, lower=False) in keywords:
+                    new[real_key] = summary.get(key)
+        return new
 
     @staticmethod
     def date_from_string(raw_date, append_tz=False):
