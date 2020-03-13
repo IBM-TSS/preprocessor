@@ -33,7 +33,3 @@ class DBHandler:
 
     def __enter__(self):
         return self
-
-
-h = DBHandler()
-print(h.get_client_db('santander'))
