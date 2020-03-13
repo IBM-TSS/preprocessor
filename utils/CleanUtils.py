@@ -8,7 +8,7 @@ class CleanUtils:
 
     MASTER_DICT = {
         'status': ['Movimiento'],
-        'id': ['ID'],
+        '_id': ['ID'],
         'name': ['Nombre'],
         'addres': ['Direccion'],
         'suburb': ['Colonia'],

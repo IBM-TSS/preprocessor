@@ -10,15 +10,14 @@ class Preprocessor:
         self.read(path)
         self.parse()
         #Preprocessor.save()
-        #Preprocessor.upload()
+        self.upload()
 
     @NotImplementedError
     def parse(self):
         pass
 
-    @staticmethod
     @NotImplementedError
-    def upload():
+    def upload(self):
         pass
 
     def save(self, path="", **save_options):
