@@ -17,10 +17,17 @@ class BDIPreprocessor(Preprocessor):
         self.data = self.data.drop(columns=['Status', 'Referencia'])
         self.data = self.data.dropna(axis=1, how='all')
         self.data['Movimiento'] = self.data['Movimiento'].str.replace('#N/D', 'ACTIVO')
-        self.data['Adquisicion'] = self.data['Adquisicion'].apply(lambda x: CleanUtils.date_from_string(x))
+
+        self.data['Adquisicion'] = self.data['Adquisicion'].apply(
+                                    lambda x: CleanUtils.date_from_string(x))
+
         self.data['Alta'] = self.data['Alta'].apply(lambda x: CleanUtils.date_from_string(x))
-        self.data['Fecha_Movimiento'] = self.data['Fecha_Movimiento'].apply(lambda x: CleanUtils.date_from_string(x))
-        self.data[['Fecha_Movimiento']] = self.data[['Fecha_Movimiento']].astype(object).where(self.data[['Fecha_Movimiento']].notnull(), None)
+
+        self.data['Fecha_Movimiento'] = self.data['Fecha_Movimiento'].apply(
+                                         lambda x: CleanUtils.date_from_string(x))
+
+        self.data[['Fecha_Movimiento']] = self.data[['Fecha_Movimiento']].astype(object).where(
+                                           self.data[['Fecha_Movimiento']].notnull(), None)
 
         # DF became a records
         self.data = self.data.to_dict('records')

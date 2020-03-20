@@ -36,9 +36,9 @@ class FileUtils:
         dfs = []
         for path in paths:
             data = FileUtils.read_single_file(path, **read_options)
-            
+
             dfs.append(data)
-        
+
         if concat:
             dfs = pd.concat(dfs, sort=False, ignore_index=True)
 

@@ -61,7 +61,8 @@ class TicketPreprocessor(Preprocessor):
                             weekly_data_temp[sheet_name].columns = columns
 
                     weekly_data_temp = pd.concat(weekly_data_temp, sort=False, ignore_index=True)
-                    weekly_data = pd.concat([weekly_data, weekly_data_temp], sort=False, ignore_index=True)
+                    weekly_data = pd.concat([weekly_data, weekly_data_temp],
+                                            sort=False, ignore_index=True)
 
         self.weekly_data = weekly_data
         self.daily_data = daily_data
@@ -74,12 +75,23 @@ class TicketPreprocessor(Preprocessor):
         self.bdi.remove()
 
     def daily_report_parser(self):
+
+        # Drop unnecesary columns
         columns_to_drop = ['REGIÓN', 'DURACIO', 'MES', 'AC', 'PROVEEDOR', 'MODELO', 'ATENCIÓN']
         self.daily_data = self.daily_data.drop(columns=columns_to_drop)
-        self.daily_data[['FECHA_FIN']] = self.daily_data[['FECHA_FIN']].astype(object).where(self.daily_data[['FECHA_FIN']].notnull(), None)
-        self.daily_data.rename(columns={'ID': 'atm'})
+
         FileUtils.delete_duplicates(self.daily_data)
-        self.daily_data.to_csv("aver.csv")
+
+        # Handle Null end_date
+        self.daily_data[['FECHA_FIN']] = self.daily_data[['FECHA_FIN']].astype(object).where(
+                                          self.daily_data[['FECHA_FIN']].notnull(), None)
+
+        # Group the same tickets and put the status in a list.
+        cols_group = [col for col in self.daily_data.columns if col != "ESTATUS"]
+        self.daily_data = self.daily_data.groupby(cols_group)['ESTATUS'].apply(list).reset_index()
+
+        self.daily_data.rename(columns={'ID': 'atm'})
+        self.daily_data.to_csv("despues.csv", index=False)
 
         # DF became a records
         self.daily_data = self.daily_data.to_dict('records')
