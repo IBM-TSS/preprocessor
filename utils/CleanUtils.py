@@ -112,6 +112,19 @@ class CleanUtils:
         return new
 
     @staticmethod
+    def standarize_keys_dict(key_list):
+        ''' Translate summary keys to standard keys
+        :param summary: A summary dictionary
+        :returns: Same dictionary with keys standardized
+        '''
+        new = {}
+        for key in key_list:
+            for real_key, keywords in CleanUtils.MASTER_DICT.items():
+                if CleanUtils.clean_string(key, to_alpha=True, lower=False) in keywords:
+                    new[key] = real_key
+        return new
+
+    @staticmethod
     def date_from_string(raw_date, append_tz=False):
         """ Parse string containing date into a tz-aware datetime object.
         :param raw_date: string containing date in a parsable format

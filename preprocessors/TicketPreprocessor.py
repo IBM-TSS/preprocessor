@@ -72,7 +72,7 @@ class TicketPreprocessor(Preprocessor):
         print("Done!")
 
     def remove(self):
-        self.bdi.remove()
+        self.ticket.remove()
 
     def daily_report_parser(self):
 
@@ -91,9 +91,13 @@ class TicketPreprocessor(Preprocessor):
         self.daily_data = self.daily_data.groupby(cols_group)['ESTATUS'].apply(list).reset_index()
 
         self.daily_data.rename(columns={'ID': 'atm'})
+        self.daily_data.rename(columns=CleanUtils.standarize_keys_dict(self.daily_data.columns))
         self.daily_data.to_csv("despues.csv", index=False)
 
         # DF became a records
         self.daily_data = self.daily_data.to_dict('records')
         # Translate the keys in each record for standarize porpuse.
-        self.daily_data = [CleanUtils.translate_keys(record) for record in self.daily_data]
+        # self.daily_data = [CleanUtils.translate_keys(record) for record in self.daily_data]
+
+    def weekly_report_parser(self):
+        pass
