@@ -23,6 +23,8 @@ class TicketPreprocessor(Preprocessor):
         # DF Manipulation
         if not self.daily_data.empty:
             self.daily_report_parser()
+        if not self.weekly_data.empty:
+            self.weekly_report_parser()
         # Delete duplicates
         # FileUtils.delete_duplicates(self.data)
 
@@ -92,12 +94,25 @@ class TicketPreprocessor(Preprocessor):
 
         self.daily_data.rename(columns={'ID': 'atm'})
         self.daily_data.rename(columns=CleanUtils.standarize_keys_dict(self.daily_data.columns))
-        self.daily_data.to_csv("despues.csv", index=False)
+        self.daily_data.to_csv("daily.csv", index=False)
 
         # DF became a records
         self.daily_data = self.daily_data.to_dict('records')
-        # Translate the keys in each record for standarize porpuse.
-        # self.daily_data = [CleanUtils.translate_keys(record) for record in self.daily_data]
 
     def weekly_report_parser(self):
-        pass
+        self.weekly_data.to_csv("weeklyAntes.csv", index=False)
+
+        # Handle Null end_date
+        self.weekly_data[['FECHA_FIN']] = self.weekly_data[['FECHA_FIN']].astype(object).where(
+                                           self.weekly_data[['FECHA_FIN']].notnull(), None)
+
+        # Group the same tickets and put the status in a list.
+        cols_group = [col for col in self.weekly_data.columns if col != "STATUS"]
+        self.weekly_data = self.weekly_data.groupby(cols_group)['STATUS'].apply(list).reset_index()
+
+        self.weekly_data.rename(columns={'ID': 'atm'})
+        self.weekly_data.rename(columns=CleanUtils.standarize_keys_dict(self.weekly_data.columns))
+        self.weekly_data.to_csv("weekly.csv", index=False)
+
+        # DF became a records
+        self.weekly_data = self.weekly_data.to_dict('records')
