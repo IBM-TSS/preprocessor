@@ -5,7 +5,6 @@ class ATM:
         self.id = None
         self.name = None
         self.addres = None
-        self.reference = None
         self.suburb = None
         self.postal_code = None
         self.city = None
@@ -33,3 +32,4 @@ class ATM:
         self.service_time = None
         self.latitude = None
         self.longitude = None
+        self.responsable = None
