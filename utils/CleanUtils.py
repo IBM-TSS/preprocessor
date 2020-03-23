@@ -7,16 +7,15 @@ from dateutil.parser import parse
 class CleanUtils:
 
     MASTER_DICT = {
-        'status': ['Movimiento'],
-        'id': ['ID'],
-        'name': ['Nombre'],
+        'status': ['Movimiento', 'ESTATUS'],
+        '_id': ['ID', 'TICKET'],
+        'name': ['Nombre', 'NOMBRE'],
         'addres': ['Direccion'],
-        'reference': ['Referencia'],
         'suburb': ['Colonia'],
         'postal_code': ['CP'],
         'city': ['Ciudad'],
         'state': ['Estado'],
-        'service': ['Servicio'],
+        'service': ['Servicio', 'SERVICIO'],
         'acquisition_date': ['Adquisicion'],
         'first_service_date': ['Alta'],
         'last_status_date': ['Fecha_Movimiento'],
@@ -39,6 +38,11 @@ class CleanUtils:
         'service_time': ['Horario_Atencion'],
         'longitude': [],
         'latitude': [],
+        'responsable': ['Atiende'],
+        'start_date': ['FECHA_INICIO'],
+        'end_date': ['FECHA_FIN'],
+        'failure': ['FALLA'],
+        'failure_type': ['TIPO FALLA']
     }
 
     @staticmethod
@@ -100,11 +104,25 @@ class CleanUtils:
         :param summary: A summary dictionary
         :returns: Same dictionary with keys standardized
         '''
-        for key in summary:
+        new = {}
+        for key in summary.keys():
             for real_key, keywords in CleanUtils.MASTER_DICT.items():
-                if CleanUtils.clean_string(key, to_alpha=True) in keywords:
-                    summary[real_key] = summary.pop(key)
-        return summary
+                if CleanUtils.clean_string(key, to_alpha=True, lower=False) in keywords:
+                    new[real_key] = summary.get(key)
+        return new
+
+    @staticmethod
+    def standarize_keys_dict(key_list):
+        ''' Translate summary keys to standard keys
+        :param summary: A summary dictionary
+        :returns: Same dictionary with keys standardized
+        '''
+        new = {}
+        for key in key_list:
+            for real_key, keywords in CleanUtils.MASTER_DICT.items():
+                if CleanUtils.clean_string(key, to_alpha=True, lower=False) in keywords:
+                    new[key] = real_key
+        return new
 
     @staticmethod
     def date_from_string(raw_date, append_tz=False):
@@ -114,6 +132,7 @@ class CleanUtils:
         :returns: tz-aware datetime object or None in case of parsing error
         """
         date = None
+        print(raw_date, type(raw_date))
         try:
             if append_tz:
                 tz_extended_date = raw_date + " 08:00:00 -0800"
@@ -122,4 +141,5 @@ class CleanUtils:
                 date = parse(raw_date)
         except (ValueError, TypeError):
             pass
+        print("date", date)
         return date
