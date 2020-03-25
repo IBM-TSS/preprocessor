@@ -12,7 +12,7 @@ class Preprocessor:
 
         self.parse()
         # Preprocessor.save()
-        # self.upload()
+        self.upload()
 
     @NotImplementedError
     def parse(self):
