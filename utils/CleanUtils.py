@@ -7,7 +7,7 @@ from dateutil.parser import parse
 class CleanUtils:
 
     MASTER_DICT = {
-        'status': ['Movimiento', 'ESTATUS'],
+        'status': ['Movimiento', 'ESTATUS', 'STATUS'],
         '_id': ['ID', 'TICKET'],
         'name': ['Nombre', 'NOMBRE'],
         'addres': ['Direccion'],
@@ -41,7 +41,7 @@ class CleanUtils:
         'responsable': ['Atiende'],
         'start_date': ['FECHA_INICIO'],
         'end_date': ['FECHA_FIN'],
-        'failure': ['FALLA'],
+        'failure': ['FALLA', 'DESCRIPCION'],
         'failure_type': ['TIPO FALLA']
     }
 

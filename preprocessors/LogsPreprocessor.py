@@ -1,23 +1,23 @@
 import pandas as pd
 
 from utils.DBHandler import DBHandler, SANTANDER_DB_NAME
-
 from .preprocessor import Preprocessor
 from utils.CleanUtils import CleanUtils
 from utils.FileUtils import FileUtils
 
 
-class TicketPreprocessor(Preprocessor):
+class LogsPreprocessor(Preprocessor):
 
     daily_data = None
     weekly_data = None
+    pre_data = pd.DataFrame()
 
     def __init__(self):
-        pass
         # Connecting to DB
         handler = DBHandler()
         self.db = handler.get_client_db(SANTANDER_DB_NAME)
-        self.tickets = self.db['tickets']
+        self.logs = self.db['logs']
+        self.logs_on_db = self.get_logs_on_db()
 
     def parse(self):
         # DF Manipulation
@@ -25,8 +25,8 @@ class TicketPreprocessor(Preprocessor):
             self.daily_report_parser()
         if not self.weekly_data.empty:
             self.weekly_report_parser()
-        # Delete duplicates
-        # FileUtils.delete_duplicates(self.data)
+
+        self.data = self.weekly_data or [] + self.daily_data or []
 
     # override
     def read(self, paths, **read_options):
@@ -53,6 +53,7 @@ class TicketPreprocessor(Preprocessor):
             for weekly_file_path in weekly_file_paths:
                 read_options['sheet_name'] = None
                 read_options['skiprows'] = 2
+                read_options['encoding'] = 'latin1'
                 weekly_data_temp = FileUtils.read(weekly_file_path,  **read_options)
 
                 if len(weekly_data_temp) > 1:
@@ -70,8 +71,25 @@ class TicketPreprocessor(Preprocessor):
         self.daily_data = daily_data
 
     def upload(self):
-        self.tickets.insert(self.daily_data)
+        ids_on_db = self.update()
+        self.logs.insert([log for log in self.data if int(log['_id']) not in ids_on_db])
         print("Done!")
+
+    def update(self):
+
+        # Update from daily data.
+        ids_on_db = [int(log['_id']) for log in self.logs_on_db]
+        logs_to_update = [log for log in self.data if log['_id'] in ids_on_db]
+
+        for log in logs_to_update:
+            _id = int(log['_id'])
+            for log_on_db in self.logs_on_db:
+                if log_on_db.get('_id') == _id:
+                    log_on_db.update(log)
+                    self.logs.replace_one({'_id': _id}, log_on_db, upsert=True)
+                    print(f'Updating: {_id}')
+
+        return ids_on_db
 
     def remove(self):
         self.ticket.remove()
@@ -79,40 +97,45 @@ class TicketPreprocessor(Preprocessor):
     def daily_report_parser(self):
 
         # Drop unnecesary columns
-        columns_to_drop = ['REGIÓN', 'DURACIO', 'MES', 'AC', 'PROVEEDOR', 'MODELO', 'ATENCIÓN']
+        columns_to_drop = ['REGIÓN', 'DURACIO', 'MES', 'AC', 'PROVEEDOR', 'MODELO', 'ATENCIÓN', 'SERVICIO']
         self.daily_data = self.daily_data.drop(columns=columns_to_drop)
-
-        FileUtils.delete_duplicates(self.daily_data)
 
         # Handle Null end_date
         self.daily_data[['FECHA_FIN']] = self.daily_data[['FECHA_FIN']].astype(object).where(
                                           self.daily_data[['FECHA_FIN']].notnull(), None)
 
-        # Group the same tickets and put the status in a list.
-        cols_group = [col for col in self.daily_data.columns if col != "ESTATUS"]
+        # Group the same logs and put the status in a list.
+        cols_group = [col for col in self.daily_data.columns if col != "ESTATUS"][14:]
+
         self.daily_data = self.daily_data.groupby(cols_group)['ESTATUS'].apply(list).reset_index()
 
-        self.daily_data.rename(columns={'ID': 'atm'})
-        self.daily_data.rename(columns=CleanUtils.standarize_keys_dict(self.daily_data.columns))
-        self.daily_data.to_csv("daily.csv", index=False)
+        self.daily_data.rename(columns={'ID': 'atm'}, inplace=True)
+        self.daily_data.rename(columns={'TIPO FALLA': 'failure_type'}, inplace=True)
+        self.daily_data.rename(columns={'ESTATUS': 'daily_status'}, inplace=True)
+        self.daily_data.rename(columns=CleanUtils.standarize_keys_dict(self.daily_data.columns),
+                               inplace=True)
 
         # DF became a records
         self.daily_data = self.daily_data.to_dict('records')
 
     def weekly_report_parser(self):
-        self.weekly_data.to_csv("weeklyAntes.csv", index=False)
 
         # Handle Null end_date
         self.weekly_data[['FECHA_FIN']] = self.weekly_data[['FECHA_FIN']].astype(object).where(
                                            self.weekly_data[['FECHA_FIN']].notnull(), None)
 
-        # Group the same tickets and put the status in a list.
+        # Group the same logs and put the status in a list.
         cols_group = [col for col in self.weekly_data.columns if col != "STATUS"]
         self.weekly_data = self.weekly_data.groupby(cols_group)['STATUS'].apply(list).reset_index()
 
-        self.weekly_data.rename(columns={'ID': 'atm'})
-        self.weekly_data.rename(columns=CleanUtils.standarize_keys_dict(self.weekly_data.columns))
-        self.weekly_data.to_csv("weekly.csv", index=False)
+        self.weekly_data.rename(columns={'ID': 'atm'}, inplace=True)
+        self.weekly_data.rename(columns=CleanUtils.standarize_keys_dict(self.weekly_data.columns),
+                                inplace=True)
+        # self.weekly_data.to_csv("weekly.csv", index=False, encoding='latin1')
 
         # DF became a records
         self.weekly_data = self.weekly_data.to_dict('records')
+
+    def get_logs_on_db(self):
+        logs = [log for log in self.logs.find({})]
+        return logs
