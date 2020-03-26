@@ -1,7 +1,6 @@
 import pandas as pd
 
 from utils.DBHandler import DBHandler, SANTANDER_DB_NAME
-
 from .preprocessor import Preprocessor
 from utils.CleanUtils import CleanUtils
 from utils.FileUtils import FileUtils
@@ -11,25 +10,23 @@ class LogsPreprocessor(Preprocessor):
 
     daily_data = None
     weekly_data = None
-    pre_data = None
+    pre_data = pd.DataFrame()
 
     def __init__(self):
-        pass
         # Connecting to DB
         handler = DBHandler()
         self.db = handler.get_client_db(SANTANDER_DB_NAME)
         self.logs = self.db['logs']
+        self.logs_on_db = self.get_logs_on_db()
 
     def parse(self):
         # DF Manipulation
-        if self.daily_data and not self.daily_data.empty:
+        if not self.daily_data.empty:
             self.daily_report_parser()
         if not self.weekly_data.empty:
             self.weekly_report_parser()
-        # if seld.daily_data and self.weekly_data:
-        #     self.pre_data = df1.id.map(df2.set_index('id1')['price'])
-        # Delete duplicates
-        # FileUtils.delete_duplicates(self.data)
+
+        self.data = self.weekly_data or [] + self.daily_data or []
 
     # override
     def read(self, paths, **read_options):
@@ -46,11 +43,10 @@ class LogsPreprocessor(Preprocessor):
             else:
                 daily_file_paths.append(path)
 
-        # if daily_file_paths:
-        #     read_options['skiprows'] = 1
-        #     read_options['encoding'] = 'latin1'
-        #     daily_data = FileUtils.read(daily_file_paths, **read_options)
-        #     daily_data = pd.concat(daily_data, sort=False, ignore_index=True)
+        if daily_file_paths:
+            read_options['skiprows'] = 1
+            daily_data = FileUtils.read(daily_file_paths, **read_options)
+            daily_data = pd.concat(daily_data, sort=False, ignore_index=True)
 
         if weekly_file_paths:
             weekly_data = pd.DataFrame()
@@ -72,11 +68,28 @@ class LogsPreprocessor(Preprocessor):
                                             sort=False, ignore_index=True)
 
         self.weekly_data = weekly_data
-        # self.daily_data = daily_data
+        self.daily_data = daily_data
 
     def upload(self):
-        self.logs.insert(self.weekly_data)
+        ids_on_db = self.update()
+        self.logs.insert([log for log in self.data if int(log['_id']) not in ids_on_db])
         print("Done!")
+
+    def update(self):
+
+        # Update from daily data.
+        ids_on_db = [int(log['_id']) for log in self.logs_on_db]
+        logs_to_update = [log for log in self.data if log['_id'] in ids_on_db]
+
+        for log in logs_to_update:
+            _id = int(log['_id'])
+            for log_on_db in self.logs_on_db:
+                if log_on_db.get('_id') == _id:
+                    log_on_db.update(log)
+                    self.logs.replace_one({'_id': _id}, log_on_db, upsert=True)
+                    print(f'Updating: {_id}')
+
+        return ids_on_db
 
     def remove(self):
         self.ticket.remove()
@@ -84,30 +97,30 @@ class LogsPreprocessor(Preprocessor):
     def daily_report_parser(self):
 
         # Drop unnecesary columns
-        columns_to_drop = ['REGIÓN', 'DURACION', 'MES', 'AC', 'PROVEEDOR', 'MODELO', 'ATENCIÓN']
+        columns_to_drop = ['REGIÓN', 'DURACIO', 'MES', 'AC', 'PROVEEDOR', 'MODELO', 'ATENCIÓN', 'SERVICIO']
         self.daily_data = self.daily_data.drop(columns=columns_to_drop)
-
-        FileUtils.delete_duplicates(self.daily_data)
 
         # Handle Null end_date
         self.daily_data[['FECHA_FIN']] = self.daily_data[['FECHA_FIN']].astype(object).where(
                                           self.daily_data[['FECHA_FIN']].notnull(), None)
 
         # Group the same logs and put the status in a list.
-        cols_group = [col for col in self.daily_data.columns if col != "ESTATUS"]
+        cols_group = [col for col in self.daily_data.columns if col != "ESTATUS"][14:]
+
         self.daily_data = self.daily_data.groupby(cols_group)['ESTATUS'].apply(list).reset_index()
 
-        self.daily_data.rename(columns={'ID': 'atm'})
-        self.daily_data.rename(columns=CleanUtils.standarize_keys_dict(self.daily_data.columns))
-        self.daily_data.to_csv("daily.csv", index=False, encoding='latin1')
+        self.daily_data.rename(columns={'ID': 'atm'}, inplace=True)
+        self.daily_data.rename(columns={'TIPO FALLA': 'failure_type'}, inplace=True)
+        self.daily_data.rename(columns={'ESTATUS': 'daily_status'}, inplace=True)
+        self.daily_data.rename(columns=CleanUtils.standarize_keys_dict(self.daily_data.columns),
+                               inplace=True)
 
         # DF became a records
-        # self.daily_data = self.daily_data.to_dict('records')
+        self.daily_data = self.daily_data.to_dict('records')
 
     def weekly_report_parser(self):
 
         # Handle Null end_date
-        self.weekly_data.to_csv("antesweekly.csv", index=False, encoding='latin1')
         self.weekly_data[['FECHA_FIN']] = self.weekly_data[['FECHA_FIN']].astype(object).where(
                                            self.weekly_data[['FECHA_FIN']].notnull(), None)
 
@@ -115,5 +128,14 @@ class LogsPreprocessor(Preprocessor):
         cols_group = [col for col in self.weekly_data.columns if col != "STATUS"]
         self.weekly_data = self.weekly_data.groupby(cols_group)['STATUS'].apply(list).reset_index()
 
-        self.weekly_data.rename(columns={'ID': 'atm'})
-        self.weekly_data.rename(columns=CleanUtils.standarize_keys_dict(self.weekly_data.columns))
+        self.weekly_data.rename(columns={'ID': 'atm'}, inplace=True)
+        self.weekly_data.rename(columns=CleanUtils.standarize_keys_dict(self.weekly_data.columns),
+                                inplace=True)
+        # self.weekly_data.to_csv("weekly.csv", index=False, encoding='latin1')
+
+        # DF became a records
+        self.weekly_data = self.weekly_data.to_dict('records')
+
+    def get_logs_on_db(self):
+        logs = [log for log in self.logs.find({})]
+        return logs
