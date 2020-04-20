@@ -45,7 +45,7 @@ class CleanUtils:
         'failure_type': ['TIPO FALLA'],
         'time_used': ['DURACION', 'DURA ORIG'],
         'accomplish': ['CUMPLIMIENTO'],
-        'time_limited': ['T_A'],
+        'time_limited': ['T_A', "TA"],
         'time_granted': ['24 HRS GRACIA', 'TIEMPO A RETIPI'],
         'time_charged': ['DURACION NA', 'DUR - RETIS']
     }
