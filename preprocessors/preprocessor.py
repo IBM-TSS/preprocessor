@@ -1,3 +1,5 @@
+import pandas as pd
+
 from utils.FileUtils import FileUtils
 
 
@@ -22,8 +24,12 @@ class Preprocessor:
     def upload(self):
         pass
 
-    def read(self, paths, **read_options):
-        self.data = FileUtils.read(paths, **read_options)
+    def read(self, paths, concat=True, **read_options):
+        if concat:
+            data = FileUtils.read(paths, **read_options)
+            self.data = pd.concat(data, sort=False, ignore_index=True)
+        else:
+            self.data = FileUtils.read(paths, **read_options)
 
     def save(self, path="", **save_options):
 
