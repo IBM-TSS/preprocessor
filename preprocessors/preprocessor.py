@@ -27,7 +27,11 @@ class Preprocessor:
     def read(self, paths, concat=True, **read_options):
         if concat:
             data = FileUtils.read(paths, **read_options)
-            self.data = pd.concat(data, sort=False, ignore_index=True)
+            # Concat if there's more than one file
+            if type(data) == pd.DataFrame:
+                self.data = data
+            else:
+                self.data = pd.concat(data, sort=False, ignore_index=True)
         else:
             self.data = FileUtils.read(paths, **read_options)
 

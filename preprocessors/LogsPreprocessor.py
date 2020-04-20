@@ -23,13 +23,8 @@ class LogsPreprocessor(Preprocessor):
         # DF Manipulation
         if not self.daily_data.empty:
             self.daily_report_parser()
-        else:
-            self.daily_data = []
-
         if not self.weekly_data.empty:
             self.weekly_report_parser()
-        else:
-            self.weekly_data = []
 
         self.data = self.weekly_data or [] + self.daily_data or []
 
@@ -40,8 +35,6 @@ class LogsPreprocessor(Preprocessor):
 
         weekly_file_paths = []
         daily_file_paths = []
-        weekly_data = pd.DataFrame()
-        daily_data = pd.DataFrame()
 
         # If input is a string put inside a list.
         if type(paths) == str:
@@ -56,6 +49,8 @@ class LogsPreprocessor(Preprocessor):
         if daily_file_paths:
             read_options['skiprows'] = 1
             daily_data = FileUtils.read(daily_file_paths, **read_options)
+            if type(daily_data) == pd.DataFrame:
+                daily_data = [daily_data]
             daily_data = pd.concat(daily_data, sort=False, ignore_index=True)
 
         if weekly_file_paths:
