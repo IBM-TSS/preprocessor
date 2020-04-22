@@ -59,7 +59,8 @@ class FileUtils:
                 if extension == "csv":
                     data = pd.read_csv(path, **read_options)
             else:
-                print(f'The extension: {extension} in {file_name} is not allowed')
+                print(
+                    f'The extension: {extension} in {file_name} is not allowed')
 
         except Exception:
             print(f"File {file_name} could not be read")
@@ -80,11 +81,14 @@ class FileUtils:
         files = os.listdir(folder_path)
 
         if extensions:
-            files_with_extensions = []
+            files_with_extensions = set()
             for extension in extensions:
                 for file_name in files:
+                    # Skip opened files
+                    if '~$' in file_name:
+                        continue
                     if extension.lower() in file_name.lower():
-                        files_with_extensions.append(file_name)
+                        files_with_extensions.add(file_name)
             files = files_with_extensions
 
         if include_path:

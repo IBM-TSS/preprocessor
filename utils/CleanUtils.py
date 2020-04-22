@@ -34,15 +34,20 @@ class CleanUtils:
         'memory_ram': ['Memoria'],
         'memory_rom': ['CapacidadHD'],
         'cartridges': ['Cartuchos'],
-        'region': ['Region'],
+        'region': ['Region', 'REGION'],
         'service_time': ['Horario_Atencion'],
         'longitude': [],
         'latitude': [],
         'responsable': ['Atiende'],
-        'start_date': ['FECHA_INICIO'],
-        'end_date': ['FECHA_FIN'],
+        'start_date': ['FECHA_INICIO', 'FECHA INICIO'],
+        'end_date': ['FECHA_FIN', 'FECHA FIN'],
         'failure': ['FALLA', 'DESCRIPCION'],
-        'failure_type': ['TIPO FALLA']
+        'failure_type': ['TIPO FALLA'],
+        'time_used': ['DURACION', 'DURA ORIG'],
+        'accomplish': ['CUMPLIMIENTO'],
+        'time_limited': ['T_A', "TA"],
+        'time_granted': ['24 HRS GRACIA', 'TIEMPO A RETIPI'],
+        'time_charged': ['DURACION NA', 'DUR - RETIS']
     }
 
     @staticmethod
@@ -112,7 +117,7 @@ class CleanUtils:
         return new
 
     @staticmethod
-    def standarize_keys_dict(key_list):
+    def standarize_keys_dict(key_list, to_alpha=True):
         ''' Translate summary keys to standard keys
         :param summary: A summary dictionary
         :returns: Same dictionary with keys standardized
@@ -120,7 +125,7 @@ class CleanUtils:
         new = {}
         for key in key_list:
             for real_key, keywords in CleanUtils.MASTER_DICT.items():
-                if CleanUtils.clean_string(key, to_alpha=True, lower=False) in keywords:
+                if CleanUtils.clean_string(key, to_alpha=to_alpha, lower=False) in keywords:
                     new[key] = real_key
         return new
 
