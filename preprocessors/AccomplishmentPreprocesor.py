@@ -42,6 +42,10 @@ class AccomplishmentPreprocesor(Preprocessor):
     def parse(self):
 
         data = []
+
+        if not self.data:
+            return
+
         for df in self.data:
 
             version = self.detec_version(df)
@@ -65,6 +69,8 @@ class AccomplishmentPreprocesor(Preprocessor):
                 lambda x: 1 if "NO" not in x else 0)
             # Make this column a integer column
             df['time_granted'].fillna(0, inplace=True)
+            df['time_granted'] = df['time_granted'].map(
+                lambda x: 0 if type(x) is not int else x)
 
             data.append(df)
 
@@ -74,7 +80,7 @@ class AccomplishmentPreprocesor(Preprocessor):
 
     def parse_v1(self, data):
         # Drop unnecesary columns
-        columns_to_drop = ['COMMENT_TEXT', 'GARANTIA', 'RESP', 'AC', 'NOMBRE',
+        columns_to_drop = ['COMMENT_TEXT', 'REGION', 'GARANTIA', 'RESP', 'AC', 'NOMBRE',
                            'MES', 'DURACION', 'PROVEEDOR', 'MARCA-MODELO', 'SERVICIO']
         if "Provee orig" in data.columns:
             columns_to_drop.append("Provee orig")
@@ -82,14 +88,14 @@ class AccomplishmentPreprocesor(Preprocessor):
 
     def parse_v2(self, data):
         # Drop unnecesary columns
-        columns_to_drop = ['COMMENT_TEXT', 'FUNCION', 'SEMANA', 'ALIAS4', 'DUR S/V', 'GARANTIA',
+        columns_to_drop = ['COMMENT_TEXT', 'REGION', 'FUNCION', 'SEMANA', 'ALIAS4', 'DUR S/V',
                            'AC', 'NOMBRE', 'MES', 'PROVEEDOR', 'MARCA-MODELO',
-                           'SERVICIO']
+                           'SERVICIO', 'GARANTIA']
         data = data.drop(columns=columns_to_drop, inplace=True)
 
     def parse_v3(self, data):
         # Drop unnecesary columns
-        columns_to_drop = ['FUNCION', 'SEMANA', 'ALIAS4', 'GARANTIA',
+        columns_to_drop = ['FUNCION', 'REGION', 'SEMANA', 'ALIAS4', 'GARANTIA',
                            'AC', 'NOMBRE', 'MES', 'PROVEEDOR', 'MARCA-MODELO',
                            'SERVICIO', 'DURACION']
         data = data.drop(columns=columns_to_drop, inplace=True)
