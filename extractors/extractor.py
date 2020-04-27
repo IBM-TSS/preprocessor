@@ -30,3 +30,9 @@ class Extractor:
         df_filtered = df_filtered.drop(
             df_filtered[(df_filtered['start_date'] < datetime.datetime(2020, 2, 7))].index)
         return df_filtered
+
+    def find_by_query(self, collection, query):
+        df = pd.DataFrame.from_records(
+            [doc for doc in self.db[collection].find(query)])
+        df.to_csv("queryResult.csv")
+        return df

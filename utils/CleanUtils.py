@@ -43,11 +43,11 @@ class CleanUtils:
         'end_date': ['FECHA_FIN', 'FECHA FIN'],
         'failure': ['FALLA', 'DESCRIPCION'],
         'failure_type': ['TIPO FALLA'],
-        'time_used': ['DURACION', 'DURA ORIG'],
+        'time_used': ['DURACION_ORIGINAL', 'DURA ORIG', 'DURACION ORIGINAL'],
         'accomplish': ['CUMPLIMIENTO'],
         'time_limited': ['T_A', "TA"],
         'time_granted': ['24 HRS GRACIA', 'TIEMPO A RETIPI'],
-        'time_charged': ['DURACION NA', 'DUR - RETIS']
+        'time_charged': ['DURACION NA', 'DUR - RETIS', 'DURACION TOTAL']
     }
 
     @staticmethod

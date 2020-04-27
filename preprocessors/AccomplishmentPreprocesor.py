@@ -11,12 +11,14 @@ class AccomplishmentPreprocesor(Preprocessor):
     UNKNOW_VERSION = -1
     VERSION_1 = 1
     VERSION_2 = 2
+    VERSION_3 = 3
 
     def __init__(self):
         # Connecting to DB
         handler = DBHandler()
         self.db = handler.get_client_db(SANTANDER_DB_NAME)
         self.accomplishments = self.db['accomplishments']
+        self.accomplishments_on_db = self.get_accomplishments_on_db()
 
     def detec_version(self, data):
         columns_version_1 = [
@@ -25,10 +27,15 @@ class AccomplishmentPreprocesor(Preprocessor):
         columns_version_2 = [
             "DUR S/V", "ALIAS4", "SEMANA", "FUNCION"
         ]
+        columns_version_3 = [
+            "DURACION TOTAL",
+        ]
         if all(elem in data.columns for elem in columns_version_1):
             return self.VERSION_1
         if all(elem in data.columns for elem in columns_version_2):
             return self.VERSION_2
+        if all(elem in data.columns for elem in columns_version_3):
+            return self.VERSION_3
 
         return self.UNKNOW_VERSION
 
@@ -43,6 +50,8 @@ class AccomplishmentPreprocesor(Preprocessor):
                 self.parse_v1(df)
             elif version == self.VERSION_2:
                 self.parse_v2(df)
+            elif version == self.VERSION_3:
+                self.parse_v3(df)
             else:
                 raise Exception("Possible new format")
 
@@ -53,10 +62,9 @@ class AccomplishmentPreprocesor(Preprocessor):
                 df.columns, to_alpha=False), inplace=True)
             # Make this column boolean
             df['accomplish'] = df['accomplish'].map(
-                lambda x: "NO" not in x)
+                lambda x: 1 if "NO" not in x else 0)
             # Make this column a integer column
-            df['time_granted'] = df['time_granted'].map(
-                lambda x: 0 if type(x) != int else x)
+            df['time_granted'].fillna(0, inplace=True)
 
             data.append(df)
 
@@ -67,7 +75,7 @@ class AccomplishmentPreprocesor(Preprocessor):
     def parse_v1(self, data):
         # Drop unnecesary columns
         columns_to_drop = ['COMMENT_TEXT', 'GARANTIA', 'RESP', 'AC', 'NOMBRE',
-                           'MES', 'DURACION ORIGINAL', 'PROVEEDOR', 'MARCA-MODELO', 'SERVICIO']
+                           'MES', 'DURACION', 'PROVEEDOR', 'MARCA-MODELO', 'SERVICIO']
         if "Provee orig" in data.columns:
             columns_to_drop.append("Provee orig")
         data = data.drop(columns=columns_to_drop, inplace=True)
@@ -77,6 +85,13 @@ class AccomplishmentPreprocesor(Preprocessor):
         columns_to_drop = ['COMMENT_TEXT', 'FUNCION', 'SEMANA', 'ALIAS4', 'DUR S/V', 'GARANTIA',
                            'AC', 'NOMBRE', 'MES', 'PROVEEDOR', 'MARCA-MODELO',
                            'SERVICIO']
+        data = data.drop(columns=columns_to_drop, inplace=True)
+
+    def parse_v3(self, data):
+        # Drop unnecesary columns
+        columns_to_drop = ['FUNCION', 'SEMANA', 'ALIAS4', 'GARANTIA',
+                           'AC', 'NOMBRE', 'MES', 'PROVEEDOR', 'MARCA-MODELO',
+                           'SERVICIO', 'DURACION']
         data = data.drop(columns=columns_to_drop, inplace=True)
 
     def read(self, paths, concat=True, **read_options):
@@ -89,9 +104,36 @@ class AccomplishmentPreprocesor(Preprocessor):
             self.data = data
 
     def upload(self):
+        ids_on_db = self.update()
         print('Uploading...')
-        self.accomplishments.insert(self.data)
+        self.accomplishments.insert(
+            [acc for acc in self.data if acc['_id'] not in ids_on_db])
         print("Done!")
+
+    def update(self):
+        print("--- Updating ---")
+
+        # Update from daily data.
+        accomplishments_on_db = {int(
+            accomplishment['_id']): accomplishment for accomplishment in self.accomplishments_on_db}
+        accomplishments_to_update = [acc for acc in self.data if acc['_id']
+                                     in accomplishments_on_db and acc != accomplishments_on_db[acc['_id']]]
+
+        for accomplishment in accomplishments_to_update:
+            _id = int(accomplishment['_id'])
+            for accomplishment_on_db in self.accomplishments_on_db:
+                if accomplishment_on_db.get('_id') == _id:
+                    accomplishment_on_db.update(accomplishment)
+                    self.accomplishments.replace_one(
+                        {'_id': _id}, accomplishment_on_db, upsert=True)
+                    print(f'Updating: {_id}')
+
+        return accomplishments_on_db.keys()
 
     def remove(self):
         self.accomplishments.remove()
+
+    def get_accomplishments_on_db(self):
+        accomplishments = [
+            accomplishment for accomplishment in self.accomplishments.find({})]
+        return accomplishments
