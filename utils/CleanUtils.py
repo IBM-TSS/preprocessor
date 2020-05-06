@@ -104,7 +104,7 @@ class CleanUtils:
             cleaned = cleaned.replace('\n', ' ')
         if to_alpha:
             cleaned = re.sub(r'\W+', '', cleaned)
-        return cleaned
+        return cleaned.strip()
 
     @staticmethod
     def translate_keys(summary):

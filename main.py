@@ -3,6 +3,7 @@ import datetime
 
 # from preprocessors.BDIPreprocessor import BDIPreprocessor
 from preprocessors.LogsPreprocessor import LogsPreprocessor
+from preprocessors.EngineersPreprocessor import EngineersPreprocessor
 from preprocessors.AccomplishmentPreprocesor import AccomplishmentPreprocesor
 from extractors.extractor import Extractor
 from utils.FileUtils import FileUtils
@@ -15,8 +16,13 @@ if __name__ == '__main__':
     target_dir3 = "C:/Users/EDUARDOLUISSANTOSDEL/Downloads/STD_ACCOMPLISMENTS"
     # paths = FileUtils.get_files_in_folder(target_dir, extensions=['xls'])
     # paths2 = FileUtils.get_files_in_folder(target_dir2, extensions=['xls'])
-    paths3 = FileUtils.get_files_in_folder(
-        target_dir3, extensions=['xls', 'xlsx'])
+    # paths3 = FileUtils.get_files_in_folder(
+    #     target_dir3, extensions=['xls', 'xlsx'])
+
+    t = EngineersPreprocessor()
+    s = time.time()
+    t.process('Recursos Self Service y MVS.xlsx')
+    e = time.time()
 
     # t = AccomplishmentPreprocesor()
     # s = time.time()
@@ -32,23 +38,23 @@ if __name__ == '__main__':
 
     # print(" time: ", e - s)
 
-    tickets = [
-        'X92463', 'X92361', 'X92355', 'X93742', 'X96113', 'X98234', 'X97246', 'X97876', 'X96779',
-        'X97862', 'X98247', 'X95324', 'X92173', 'X96005', 'X92158', 'X93644', 'X90199', 'X93177',
-        'X93524', 'X96327', 'X96331', 'X93251', 'X95324', 'X92396', 'X95806'
-    ]
-    q = {
-        # 'atm': {'$in': tickets},
-        'start_date': {'$gte': datetime.datetime(2019, 12, 1)}
-    }
+    # tickets = [
+    #     'X92463', 'X92361', 'X92355', 'X93742', 'X96113', 'X98234', 'X97246', 'X97876', 'X96779',
+    #     'X97862', 'X98247', 'X95324', 'X92173', 'X96005', 'X92158', 'X93644', 'X90199', 'X93177',
+    #     'X93524', 'X96327', 'X96331', 'X93251', 'X95324', 'X92396', 'X95806'
+    # ]
+    # q = {
+    #     # 'atm': {'$in': tickets},
+    #     'start_date': {'$gte': datetime.datetime(2019, 12, 1)}
+    # }
 
-    ex = Extractor()
-    s = time.time()
-    result = ex.join_accomplishments_bdi(accomplishments_query=q)
-    e = time.time()
-    print(result)
+    # ex = Extractor()
+    # s = time.time()
+    # result = ex.join_accomplishments_bdi(accomplishments_query=q)
+    # e = time.time()
+    # print(result)
 
-    print(" time: ", e - s)
+    # print(" time: ", e - s)
 
     # e = Extractor()
     # options = {'parse_dates': 'start_date'}
