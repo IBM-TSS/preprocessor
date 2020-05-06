@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     t = EngineersPreprocessor()
     s = time.time()
-    t.process('Recursos Self Service y MVS.xlsx')
+    t.process('ingenieria_con_id.csv')
     e = time.time()
 
     # t = AccomplishmentPreprocesor()

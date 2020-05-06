@@ -97,12 +97,12 @@ class FileUtils:
         return files
 
     @staticmethod
-    def read(paths, **read_options):
+    def read(paths, concat=False, **read_options):
 
         data = None
 
         if type(paths) == list and len(paths) > 1:
-            data = FileUtils.read_chunk(paths, **read_options)
+            data = FileUtils.read_chunk(paths, concat=concat, **read_options)
         elif type(paths) == str:
             path = paths
             data = FileUtils.read_single_file(path, **read_options)
