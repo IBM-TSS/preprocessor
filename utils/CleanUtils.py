@@ -9,8 +9,8 @@ class CleanUtils:
     MASTER_DICT = {
         'status': ['Movimiento', 'ESTATUS', 'STATUS'],
         '_id': ['ID', 'TICKET'],
-        'name': ['Nombre', 'NOMBRE'],
-        'addres': ['Direccion'],
+        'name': ['Nombre', 'NOMBRE', 'QTY Recursos'],
+        'address': ['Direccion'],
         'suburb': ['Colonia'],
         'postal_code': ['CP'],
         'city': ['Ciudad'],
@@ -43,11 +43,14 @@ class CleanUtils:
         'end_date': ['FECHA_FIN', 'FECHA FIN'],
         'failure': ['FALLA', 'DESCRIPCION'],
         'failure_type': ['TIPO FALLA'],
-        'time_used': ['DURACION', 'DURA ORIG'],
+        'time_used': ['DURACION_ORIGINAL', 'DURA ORIG', 'DURACION ORIGINAL'],
         'accomplish': ['CUMPLIMIENTO'],
         'time_limited': ['T_A', "TA"],
         'time_granted': ['24 HRS GRACIA', 'TIEMPO A RETIPI'],
-        'time_charged': ['DURACION NA', 'DUR - RETIS']
+        'time_charged': ['DURACION NA', 'DUR - RETIS', 'DURACION TOTAL'],
+        'platform': ['Plataforma'],
+        'manager': ['Field Manager'],
+        'go_to_atm': ['Pasa a Cajeros'],
     }
 
     @staticmethod
@@ -101,7 +104,7 @@ class CleanUtils:
             cleaned = cleaned.replace('\n', ' ')
         if to_alpha:
             cleaned = re.sub(r'\W+', '', cleaned)
-        return cleaned
+        return cleaned.strip()
 
     @staticmethod
     def translate_keys(summary):
