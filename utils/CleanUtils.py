@@ -9,8 +9,8 @@ class CleanUtils:
     MASTER_DICT = {
         'status': ['Movimiento', 'ESTATUS', 'STATUS'],
         '_id': ['ID', 'TICKET'],
-        'name': ['Nombre', 'NOMBRE'],
-        'addres': ['Direccion'],
+        'name': ['Nombre', 'NOMBRE', 'QTY Recursos'],
+        'address': ['Direccion'],
         'suburb': ['Colonia'],
         'postal_code': ['CP'],
         'city': ['Ciudad'],
@@ -47,7 +47,10 @@ class CleanUtils:
         'accomplish': ['CUMPLIMIENTO'],
         'time_limited': ['T_A', "TA"],
         'time_granted': ['24 HRS GRACIA', 'TIEMPO A RETIPI'],
-        'time_charged': ['DURACION NA', 'DUR - RETIS', 'DURACION TOTAL']
+        'time_charged': ['DURACION NA', 'DUR - RETIS', 'DURACION TOTAL'],
+        'platform': ['Plataforma'],
+        'manager': ['Field Manager'],
+        'go_to_atm': ['Pasa a Cajeros'],
     }
 
     @staticmethod
