@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+*.xls
+*.xlsx
+*.csv
+*.env
+*driver
