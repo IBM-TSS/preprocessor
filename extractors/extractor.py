@@ -49,3 +49,6 @@ class Extractor:
         merged.to_csv("merged.csv", encoding="latin", index=False)
 
         return merged
+
+    def __exit__(self):
+        self.db.close()

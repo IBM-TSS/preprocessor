@@ -2,7 +2,6 @@ from utils.DBHandler import DBHandler, USERS_DB_NAME
 
 from .preprocessor import Preprocessor
 from utils.CleanUtils import CleanUtils
-import pandas as pd
 from utils.FileUtils import FileUtils
 
 

@@ -4,29 +4,39 @@ import datetime
 # from preprocessors.BDIPreprocessor import BDIPreprocessor
 from preprocessors.LogsPreprocessor import LogsPreprocessor
 from preprocessors.EngineersPreprocessor import EngineersPreprocessor
+from preprocessors.RCMS.TicketsPreprocesor import TicketsPreprocessor
 from preprocessors.AccomplishmentPreprocesor import AccomplishmentPreprocesor
 from extractors.extractor import Extractor
 from utils.FileUtils import FileUtils
+from fetchers.EngineerReportsFetcher import EngineerReportsFetcher
 
 
 if __name__ == '__main__':
+    e = EngineerReportsFetcher()
+    e.process()
 
     # target_dir = "C:/Users/EDUARDOLUISSANTOSDEL/Downloads/STD_TICKETS_DIARIOS"
     # target_dir2 = "C:/Users/EDUARDOLUISSANTOSDEL/Downloads/STD_TICKETS_SEMANALES"
-    target_dir3 = "C:/Users/EDUARDOLUISSANTOSDEL/Downloads/STD_ACCOMPLISMENTS"
+    # target_dir3 = "C:/Users/EDUARDOLUISSANTOSDEL/Downloads/STD_ACCOMPLISMENTS"
     # paths = FileUtils.get_files_in_folder(target_dir, extensions=['xls'])
     # paths2 = FileUtils.get_files_in_folder(target_dir2, extensions=['xls'])
     # paths3 = FileUtils.get_files_in_folder(
     #     target_dir3, extensions=['xls', 'xlsx'])
+    # paths4 = ["Datos IBM.xlsx"]
 
-    t = EngineersPreprocessor()
-    s = time.time()
-    t.process('ingenieria_con_id.csv')
-    e = time.time()
+    # t = EngineersPreprocessor()
+    # s = time.time()
+    # t.process('ingenieria_con_id.csv')
+    # e = time.time()
+
+    # t = TicketsPreprocessor()
+    # s = time.time()
+    # t.process(paths4)
+    # e = time.time()
 
     # t = AccomplishmentPreprocesor()
     # s = time.time()
-    # t.process(paths3)
+    # t.process(paths4)
     # e = time.time()
 
     # print(" time: ", e - s)
@@ -50,7 +60,8 @@ if __name__ == '__main__':
 
     # ex = Extractor()
     # s = time.time()
-    # result = ex.join_accomplishments_bdi(accomplishments_query=q)
+    # result = ex.join_accomplishments_bdi()
+    # # result = ex.join_accomplishments_bdi(accomplishments_query=q)
     # e = time.time()
     # print(result)
 
@@ -65,16 +76,25 @@ if __name__ == '__main__':
     # # }
     # tickets = tickets_df.ID.tolist()
     # feb_q = {
-    #     'atm': {'$in': tickets},
-    #     'start_date': {'$lte': datetime.datetime(2020, 2, 29)}
+    #     # 'atm': {'$in': tickets},
+    #     'start_date': {'$gte': datetime.datetime(2020, 4, 1)},
+        
     # }
     # s = time.time()
     # logs = e.join_logs_bdi(logs_query=feb_q)
-    # df = e.fun([], logs)
-    # df.to_csv("filtered.csv")
+    # # df = e.fun([], logs)
+    # # df.to_csv("filtered.csv")
+    # logs.to_csv("may_june_fails.csv", encoding="latin", index=False)
     # en = time.time()
     # print(" time: ", en - s)
 
 # s = BDIPreprocessor()
 # s.process('bdi_enero.csv')
 # s.remove()
+
+    # ex = Extractor()
+    # # print(ex.db.accomplishments.distinct('failure'))
+
+    # import pandas as pd
+
+    # pd.DataFrame((ex.db.accomplishments.distinct('failure'))).to_csv("dict_ext_std.csv")
