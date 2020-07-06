@@ -9,6 +9,7 @@ load_dotenv(verbose=True, dotenv_path='secrets.env')
 # Clients DB names
 SANTANDER_DB_NAME = 'santander'
 USERS_DB_NAME = 'users'
+RCMS_DB_NAME = 'rcms'
 
 
 class DBHandler:
