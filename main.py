@@ -12,8 +12,15 @@ from fetchers.EngineerReportsFetcher import EngineerReportsFetcher
 
 
 if __name__ == '__main__':
-    e = EngineerReportsFetcher()
-    e.process()
+    bbva_data_target = "data/bbva"
+    paths = FileUtils.get_files_in_folder(
+        bbva_data_target, extensions=['xlsx', 'csv'])
+    # print(paths)
+    merged = FileUtils.read_parallel(paths)
+    merged.to_csv('data/bbva/data_bbva_merged2.csv',
+                  encoding="utf8", index=False)
+    # e = EngineerReportsFetcher()
+    # e.process()
 
     # target_dir = "C:/Users/EDUARDOLUISSANTOSDEL/Downloads/STD_TICKETS_DIARIOS"
     # target_dir2 = "C:/Users/EDUARDOLUISSANTOSDEL/Downloads/STD_TICKETS_SEMANALES"
@@ -78,7 +85,7 @@ if __name__ == '__main__':
     # feb_q = {
     #     # 'atm': {'$in': tickets},
     #     'start_date': {'$gte': datetime.datetime(2020, 4, 1)},
-        
+
     # }
     # s = time.time()
     # logs = e.join_logs_bdi(logs_query=feb_q)
