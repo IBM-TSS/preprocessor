@@ -8,18 +8,23 @@ from preprocessors.RCMS.TicketsPreprocesor import TicketsPreprocessor
 from preprocessors.AccomplishmentPreprocesor import AccomplishmentPreprocesor
 from extractors.extractor import Extractor
 from utils.FileUtils import FileUtils
-from fetchers.EngineerReportsFetcher import EngineerReportsFetcher
+from fetchers.EngineerClosuresFetcher import EngineerClosuresFetcher
+from fetchers.VerseMailFetcher import VerseMailFetcher
 
 
 if __name__ == '__main__':
-    bbva_data_target = "data/bbva"
-    paths = FileUtils.get_files_in_folder(
-        bbva_data_target, extensions=['xlsx', 'csv'])
-    # print(paths)
-    merged = FileUtils.read_parallel(paths)
-    merged.to_csv('data/bbva/data_bbva_merged2.csv',
-                  encoding="utf8", index=False)
-    # e = EngineerReportsFetcher()
+    # bbva_data_target = "data/bbva"
+    # paths = FileUtils.get_files_in_folder(
+    #     bbva_data_target, extensions=['xlsx', 'csv'])
+    # # print(paths)
+    # merged = FileUtils.read_parallel(paths)
+    # merged.to_csv('data/bbva/data_bbva_merged2.csv',
+    #               encoding="utf8", index=False)
+    e = EngineerClosuresFetcher()
+    s = time.perf_counter()
+    e.process()
+    print("time", time.perf_counter() - s)
+    # e = VerseMailFetcher()
     # e.process()
 
     # target_dir = "C:/Users/EDUARDOLUISSANTOSDEL/Downloads/STD_TICKETS_DIARIOS"
@@ -91,7 +96,8 @@ if __name__ == '__main__':
     # logs = e.join_logs_bdi(logs_query=feb_q)
     # # df = e.fun([], logs)
     # # df.to_csv("filtered.csv")
-    # logs.to_csv("may_june_fails.csv", encoding="latin", index=False)
+    # logs.to_csv("data/santander/logs/may_july13_fails.csv",
+    #             encoding="latin", index=False)
     # en = time.time()
     # print(" time: ", en - s)
 

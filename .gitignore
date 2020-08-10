@@ -133,3 +133,4 @@ dmypy.json
 *.csv
 *.env
 *driver
+.DS_STORE
