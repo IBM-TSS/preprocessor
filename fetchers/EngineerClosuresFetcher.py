@@ -1,14 +1,10 @@
 import os
 import time
 
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
 from selenium import webdriver
 from dotenv import load_dotenv
 
-from fetchers.VerseMailFetcher import VerseMailFetcher
+from utils.VerseUtils import VerseUtils
 
 
 load_dotenv(verbose=True, dotenv_path='secrets.env')
@@ -39,23 +35,12 @@ class EngineerClosuresFetcher:
         self.driver.get(self.URL)
 
         # Avoid signin without a password
-        WebDriverWait(self.driver, self.WAIT_PAGE).until(
-            EC.presence_of_element_located(
-                (By.XPATH, '//*[@id="alternate-signin-link"]')
-            )
-        ).click()
+        VerseUtils.avoid_signin_without_password(self.driver)
 
         # Login
-        WebDriverWait(self.driver, self.WAIT_PAGE).until(
-            EC.presence_of_element_located(
-                (By.ID, 'desktop')
-            )
-        ).send_keys(self.user)
-        pass_input = self.driver.find_element_by_name('password')
-        pass_input.send_keys(self.password)
-        pass_input.send_keys(Keys.ENTER)
+        VerseUtils.login(self.driver)
 
-        VerseMailFetcher.handle_verification(self.driver)
+        VerseUtils.handle_verification(self.driver)
 
         # Wait until the file is downloaded, wait at most 10 tries of 2 seconds
         for _ in range(10):

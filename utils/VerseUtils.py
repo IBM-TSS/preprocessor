@@ -13,17 +13,8 @@ load_dotenv(verbose=True, dotenv_path='secrets.env')
 DRIVER_PATH = '/Users/reysantos7/Documents/IBMRepositories/preprocessor/fetchers/chromedriver'
 
 
-class VerseMailFetcher:
+class VerseUtils:
     URL = os.getenv("VERSE_MAIL_ENDPOINT")
-    wait_page = 15
-
-    def __init__(self):
-        # options.add_argument('-headless')
-        # self.driver = webdriver.Firefox(executable_path=DRIVER_PATH, options=options)
-        self.driver = webdriver.Chrome(
-            executable_path=DRIVER_PATH)
-        self.user = os.getenv("ENGINEER_REPORTS_USER")
-        self.password = os.getenv("ENGINEER_REPORTS_PASSWORD")
 
     @staticmethod
     def handle_verification(driver, wait_page=15):
@@ -82,6 +73,28 @@ class VerseMailFetcher:
         except TimeoutException:
             print("No Rember me asked by the page.")
             return
+
+    @staticmethod
+    def login(driver, wait_page=15):
+        user = os.getenv("ENGINEER_REPORTS_USER")
+        password = os.getenv("ENGINEER_REPORTS_PASSWORD")
+
+        WebDriverWait(driver, wait_page).until(
+            EC.presence_of_element_located(
+                (By.ID, 'desktop')
+            )
+        ).send_keys(user)
+        pass_input = driver.find_element_by_name('password')
+        pass_input.send_keys(password)
+        pass_input.send_keys(Keys.ENTER)
+
+    @staticmethod
+    def avoid_signin_without_password(driver, wait_page=15):
+        WebDriverWait(driver, wait_page).until(
+            EC.presence_of_element_located(
+                (By.XPATH, '//*[@id="alternate-signin-link"]')
+            )
+        ).click()
 
     def process(self):
         self.driver.get(self.URL)
