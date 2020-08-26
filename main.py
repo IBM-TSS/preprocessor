@@ -1,7 +1,7 @@
 import time
 import datetime
 
-# from preprocessors.BDIPreprocessor import BDIPreprocessor
+from preprocessors.BDIPreprocessor import BDIPreprocessor
 from preprocessors.LogsPreprocessor import LogsPreprocessor
 from preprocessors.EngineersPreprocessor import EngineersPreprocessor
 from preprocessors.RCMS.TicketsPreprocesor import TicketsPreprocessor
@@ -9,10 +9,15 @@ from preprocessors.AccomplishmentPreprocesor import AccomplishmentPreprocesor
 from extractors.extractor import Extractor
 from utils.FileUtils import FileUtils
 from fetchers.EngineerClosuresFetcher import EngineerClosuresFetcher
-from fetchers.VerseMailFetcher import VerseMailFetcher
+from fetchers.WarningsFetcher import WarningsFetcher
+from LoadTickets import LoadTickets
 
 
 if __name__ == '__main__':
+    e = LoadTickets()
+    s = time.perf_counter()
+    e.process()
+    print("time", time.perf_counter() - s)
     # bbva_data_target = "data/bbva"
     # paths = FileUtils.get_files_in_folder(
     #     bbva_data_target, extensions=['xlsx', 'csv'])
@@ -20,11 +25,11 @@ if __name__ == '__main__':
     # merged = FileUtils.read_parallel(paths)
     # merged.to_csv('data/bbva/data_bbva_merged2.csv',
     #               encoding="utf8", index=False)
-    e = EngineerClosuresFetcher()
-    s = time.perf_counter()
-    e.process()
-    print("time", time.perf_counter() - s)
-    # e = VerseMailFetcher()
+    # e = EngineerClosuresFetcher()
+    # s = time.perf_counter()
+    # e.process()
+    # print("time", time.perf_counter() - s)
+    # e = VerseUtils()
     # e.process()
 
     # target_dir = "C:/Users/EDUARDOLUISSANTOSDEL/Downloads/STD_TICKETS_DIARIOS"
@@ -71,12 +76,11 @@ if __name__ == '__main__':
     # }
 
     # ex = Extractor()
-    # s = time.time()
+    # s = time.perf_counter()
     # result = ex.join_accomplishments_bdi()
     # # result = ex.join_accomplishments_bdi(accomplishments_query=q)
-    # e = time.time()
+    # e = time.perf_counter()
     # print(result)
-
     # print(" time: ", e - s)
 
     # e = Extractor()
@@ -101,13 +105,13 @@ if __name__ == '__main__':
     # en = time.time()
     # print(" time: ", en - s)
 
-# s = BDIPreprocessor()
-# s.process('bdi_enero.csv')
-# s.remove()
+    # s = BDIPreprocessor()
+    # s.process('bdi_julio.xlsx')
+    # s.remove()
 
-    # ex = Extractor()
-    # # print(ex.db.accomplishments.distinct('failure'))
+# ex = Extractor()
+# # print(ex.db.accomplishments.distinct('failure'))
 
-    # import pandas as pd
+# import pandas as pd
 
-    # pd.DataFrame((ex.db.accomplishments.distinct('failure'))).to_csv("dict_ext_std.csv")
+# pd.DataFrame((ex.db.accomplishments.distinct('failure'))).to_csv("dict_ext_std.csv")

@@ -15,7 +15,7 @@ class CleanUtils:
         'postal_code': ['CP'],
         'city': ['Ciudad'],
         'state': ['Estado'],
-        'service': ['Servicio', 'SERVICIO'],
+        'service': ['Servicio', 'SERVICIO', 'TIPO_SERVICIO'],
         'acquisition_date': ['Adquisicion'],
         'first_service_date': ['Alta'],
         'last_status_date': ['Fecha_Movimiento'],
@@ -39,8 +39,9 @@ class CleanUtils:
         'longitude': [],
         'latitude': [],
         'responsable': ['Atiende'],
-        'start_date': ['FECHA_INICIO', 'FECHA INICIO'],
-        'end_date': ['FECHA_FIN', 'FECHA FIN'],
+        'start_date': ['FECHA_INICIO', 'FECHA INICIO', 'FECHA_CREACION'],
+        'end_date': ['FECHA_FIN', 'FECHA FIN', ' FECHA_CIERRE'],
+        'last_status_update_date': ['FECHA_ULTIMO_STATUS'],
         'failure': ['FALLA', 'DESCRIPCION'],
         'failure_type': ['TIPO FALLA'],
         'time_used': ['DURACION_ORIGINAL', 'DURA ORIG', 'DURACION ORIGINAL'],
@@ -51,6 +52,14 @@ class CleanUtils:
         'platform': ['Plataforma'],
         'manager': ['Field Manager'],
         'go_to_atm': ['Pasa a Cajeros'],
+        'severity': ['SEVERIDAD'],
+        'engineer_id': ['EMPLOYEE_NBR'],
+        'engineer_name': ['EMPLOYEE_NAME'],
+        'bu_code': ['BU_CODE'],
+        'call_comments': ['CALL_COMMENTS'],
+        'creator_id': ['CREATION_USER_ID'],
+        'atm_mvs': ['ATM_MVS'],
+        'client_id': ['CLI_NUMERO']
     }
 
     @staticmethod
@@ -140,14 +149,15 @@ class CleanUtils:
         :returns: tz-aware datetime object or None in case of parsing error
         """
         date = None
-        print(raw_date, type(raw_date))
+
         try:
             if append_tz:
                 tz_extended_date = raw_date + " 08:00:00 -0800"
                 date = parse(tz_extended_date)
             else:
                 date = parse(raw_date)
-        except (ValueError, TypeError):
+        except (ValueError, TypeError) as e:
+            print(e)
             pass
-        print("date", date)
+
         return date
