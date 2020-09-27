@@ -26,6 +26,12 @@ class LogsPreprocessor(Preprocessor):
         if not self.weekly_data.empty:
             self.weekly_report_parser()
 
+        if type(self.daily_data) == pd.DataFrame:
+            self.daily_data = [self.daily_data]
+
+        if type(self.weekly_data) == pd.DataFrame:
+            self.weekly_data = [self.weekly_data]
+
         self.data = self.weekly_data or [] + self.daily_data or []
 
     # override
@@ -62,17 +68,17 @@ class LogsPreprocessor(Preprocessor):
                 weekly_data_temp = FileUtils.read(
                     weekly_file_path,  **read_options)
 
-                if len(weekly_data_temp) > 1:
-                    columns = weekly_data_temp['Ticket History IBM'].columns
+                columns = weekly_data_temp['Ticket History IBM'].columns
 
-                    for sheet_name in weekly_data_temp:
-                        if sheet_name != "Ticket History IBM":
-                            weekly_data_temp[sheet_name].columns = columns
+                for sheet_name in weekly_data_temp:
+                    if sheet_name != "Ticket History IBM":
+                        weekly_data_temp[sheet_name].columns = columns
 
-                    weekly_data_temp = pd.concat(
-                        weekly_data_temp, sort=False, ignore_index=True)
-                    weekly_data = pd.concat([weekly_data, weekly_data_temp],
-                                            sort=False, ignore_index=True)
+                weekly_data_temp = pd.concat(
+                    weekly_data_temp, sort=False, ignore_index=True)
+
+                weekly_data = pd.concat([weekly_data, weekly_data_temp],
+                                        sort=False, ignore_index=True)
 
         self.weekly_data = weekly_data
         self.daily_data = daily_data
@@ -85,7 +91,6 @@ class LogsPreprocessor(Preprocessor):
 
     def update(self):
         print("--- Updating ---")
-
         # Update from daily data.
         logs_on_db = {int(log['_id']): log for log in self.logs_on_db}
         logs_to_update = [log for log in self.data if log['_id']
