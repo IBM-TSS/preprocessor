@@ -8,13 +8,15 @@ class Preprocessor:
     def __init__(self):
         self.data = None
 
-    def process(self, paths, **read_options):
+    def process(self, paths, upload=True, ** read_options):
 
         self.read(paths, **read_options)
 
         self.parse()
-        # Preprocessor.save()
-        self.upload()
+        # Preprocessor.save(path="data/guardado.csv")
+
+        if upload:
+            self.upload()
 
     @NotImplementedError
     def parse(self):
@@ -40,6 +42,8 @@ class Preprocessor:
         file_name = path.split('/')[-1]
         path = path.replace(file_name, '')
         extension = file_name.split('.')
+        print(file_name)
+        print(extension)
 
         if extension[1] == "xlsx" or extension[1] == 'xls':
             self.data.to_excel(file_name, **save_options)
